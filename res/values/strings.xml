@@ -22,6 +22,8 @@
     <string name="btnadd">+</string>
     <string name="btnnull"></string>
     <string name="btndel">清除</string>
+    <string name="btndelall">C</string>
+    <string name="btnfal">!</string>
     
 
 </resources>

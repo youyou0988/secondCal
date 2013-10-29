@@ -128,5 +128,12 @@ public class StringToArithmetic {
             return x / y;
         return 0;
     }
+    private static double mycal(int n){
+    	double result=1;
+    	for(int i=1;i<=n;i++){
+    		result = result*i;
+    	}
+    	return result;
+    }
 }
 

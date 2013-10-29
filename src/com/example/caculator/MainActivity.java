@@ -8,6 +8,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.InputType;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -19,7 +23,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * @author 铂金小龟
@@ -31,22 +34,30 @@ public class MainActivity extends Activity implements OnClickListener {
 	SQLiteDatabase db;
 	protected static final int Menu_Item1=Menu.FIRST;
 	ArrayAdapter<String> adapter;
-	
+	ListView listeAlbum = null;
+	String falstring = "";
+	private Handler mHandler = new Handler() {
+		public void handleMessage (Message msg) {//此方法在ui线程运行
+			rsText.setText(result+"");
+		}
+	};
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		
-		
-		
 		rsText = (EditText) findViewById(R.id.rsText);
+		rsText.setInputType(InputType.TYPE_NULL);//输入法不再弹出
+		listeAlbum = (ListView) this.findViewById(R.id.caldblistView);
+		listeAlbum.removeAllViewsInLayout();
 		Button btnDel = (Button) findViewById(R.id.delete);
 		Button btnPlu = (Button) findViewById(R.id.plus);
 		Button btnMin = (Button) findViewById(R.id.minus);
 		Button btnMul = (Button) findViewById(R.id.multiply);
 		Button btnDiv = (Button) findViewById(R.id.division);
 		Button btnEqu = (Button) findViewById(R.id.equ);
+		Button btnDelAll = (Button) findViewById(R.id.deleteall);
+		Button btnfal = (Button) findViewById(R.id.fal);
 
 		// num 数字按钮
 		Button num0 = (Button) findViewById(R.id.num0);
@@ -68,6 +79,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		btnMul.setOnClickListener(this);
 		btnDiv.setOnClickListener(this);
 		btnEqu.setOnClickListener(this);
+		btnDelAll.setOnClickListener(this);
+		btnfal.setOnClickListener(this);
 		num0.setOnClickListener(this);
 		num1.setOnClickListener(this);
 		num2.setOnClickListener(this);
@@ -89,7 +102,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	public void onClick(View e) {
 		Button btn = (Button) e;
 		String exp = rsText.getText().toString();
-		db = new DataBaseHelper(this).getWritableDatabase();
+		//db = new DataBaseHelper(this).getWritableDatabase();
+		
 		//db.delete("constants", null, null);
 		if (isClear
 				&& (btn.getText().equals("0") || btn.getText().equals("1")
@@ -118,6 +132,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			exp = exp.replaceAll("×", "*");
 			exp = exp.replaceAll("÷", "/");
 			
+			db = new DataBaseHelper(this).getWritableDatabase();
 			
 			String result = CalcluateResult(exp);
 			ContentValues tmp = new ContentValues();
@@ -125,6 +140,10 @@ public class MainActivity extends Activity implements OnClickListener {
 			tmp.put("value", result);
 			db.insert("constants", "title", tmp);
 			rsText.setText(result);
+			
+			updateList();
+			db.close();
+			
 			isClear = false;
 		} else {
 			rsText.setText(rsText.getText() + "" + btn.getText());
@@ -132,12 +151,11 @@ public class MainActivity extends Activity implements OnClickListener {
 		}
 		// 操作完成后始终保持光标在最后一位
 		rsText.setSelection(rsText.getText().length());
-		updateList();
-		db.close();
+		//updateList();
+		//db.close();
 	}
 	public void updateList() {
-		ListView listeAlbum = (ListView) this.findViewById(R.id.caldblistView);
-	    
+		
 	    ArrayList<String> output = new ArrayList<String>();
 
 	    String[] colonnesARecup = new String[] { "title", "value" };
@@ -200,15 +218,40 @@ public class MainActivity extends Activity implements OnClickListener {
 			// 先处理第一个数是负数的情况
 			if (input.charAt(0) == '-')
 				input = "0" + input;
-			// 替换运算符,+,-,*,/分别替换为a,b,c,d
+			if(input.charAt(input.length()-1)=='!'){
+				//计算阶乘
+				n = Integer.parseInt(input.substring(0,input.length()-1));
+				new Thread(sendable).start();
+				return result+"";//为了显示在数据库里面
+			}
 			double result = cacutt.stringToArithmetic(input);
 			return String.valueOf(result);
 		} catch (Exception ex) {
+			Log.e(ex.toString(), "wrong");
 			return "运算式不合法！";
 		}
 	}
+	int n;
+	Runnable sendable = new Runnable() {
 
-	
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
+			Message msg = new Message();   
+            msg.what = 1;  
+            result=getPI(n);  
+            mHandler.sendMessage(msg); 
+		}
+	};
+	double result;
+	public double getPI(int n){
+		double result=1;
+		for(int i=1;i<=n;i++){
+			result = result*i;
+		}
+		return result;
+	}
 
 	/***
 	 * @param str

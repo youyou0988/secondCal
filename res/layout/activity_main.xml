@@ -21,11 +21,15 @@
         android:columnCount="4"
         android:orientation="horizontal" >
 
-        <Button
-            android:layout_columnSpan="3"
+ 		<Button android:text=""
             android:layout_gravity="fill"
-            android:text="@string/btnnull" />
-
+            android:id="@+id/space" />
+ 		<Button android:text="@string/btndelall"
+            android:layout_gravity="fill"
+            android:id="@+id/deleteall" />
+		<Button android:text="@string/btnfal"
+            android:layout_gravity="fill"
+            android:id="@+id/fal" />
         <Button android:text="@string/btndel"
             android:layout_gravity="fill"
             android:id="@+id/delete" />
