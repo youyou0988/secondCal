@@ -1,12 +1,25 @@
 package com.example.caculator;
 
 
-import android.os.Bundle;
+import java.util.ArrayList;
+
 import android.app.Activity;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * @author 铂金小龟
@@ -15,13 +28,18 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	EditText rsText = null; // 显示器
 	boolean isClear = false; // 用于是否显示器需要被清理
-
+	SQLiteDatabase db;
+	protected static final int Menu_Item1=Menu.FIRST;
+	ArrayAdapter<String> adapter;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		// fun 功能按钮
+		
+		
+		
+		
 		rsText = (EditText) findViewById(R.id.rsText);
 		Button btnDel = (Button) findViewById(R.id.delete);
 		Button btnPlu = (Button) findViewById(R.id.plus);
@@ -61,12 +79,18 @@ public class MainActivity extends Activity implements OnClickListener {
 		num8.setOnClickListener(this);
 		num9.setOnClickListener(this);
 		dot.setOnClickListener(this);
+		
+		/*GridLayout.LayoutParams params = new GridLayout.LayoutParams(5,4);
+		//指定该组件占满容器
+		params.setGravity(Gravity.FILL);*/
 	}
 
 	@Override
 	public void onClick(View e) {
 		Button btn = (Button) e;
 		String exp = rsText.getText().toString();
+		db = new DataBaseHelper(this).getWritableDatabase();
+		//db.delete("constants", null, null);
 		if (isClear
 				&& (btn.getText().equals("0") || btn.getText().equals("1")
 						|| btn.getText().equals("2")
@@ -93,7 +117,14 @@ public class MainActivity extends Activity implements OnClickListener {
 				return;
 			exp = exp.replaceAll("×", "*");
 			exp = exp.replaceAll("÷", "/");
-			rsText.setText(CalcluateResult(exp));
+			
+			
+			String result = CalcluateResult(exp);
+			ContentValues tmp = new ContentValues();
+			tmp.put("title", exp);
+			tmp.put("value", result);
+			db.insert("constants", "title", tmp);
+			rsText.setText(result);
 			isClear = false;
 		} else {
 			rsText.setText(rsText.getText() + "" + btn.getText());
@@ -101,8 +132,58 @@ public class MainActivity extends Activity implements OnClickListener {
 		}
 		// 操作完成后始终保持光标在最后一位
 		rsText.setSelection(rsText.getText().length());
+		updateList();
+		db.close();
 	}
+	public void updateList() {
+		ListView listeAlbum = (ListView) this.findViewById(R.id.caldblistView);
+	    
+	    ArrayList<String> output = new ArrayList<String>();
 
+	    String[] colonnesARecup = new String[] { "title", "value" };
+
+	    Cursor cursorResults = db.query("constants", colonnesARecup,
+	            null, null, null, null, null, null);
+	    if (null != cursorResults) {
+	        if (cursorResults.moveToFirst()) {
+	            do {
+	                int columnIdxArtiste = cursorResults
+	                        .getColumnIndex("title");
+	                int columnIdxTitre = cursorResults.getColumnIndex("value");
+	                String oItem = cursorResults.getString(columnIdxArtiste)
+	                        + " =  " + cursorResults.getString(columnIdxTitre);
+	                output.add(oItem);
+	            } while (cursorResults.moveToNext());
+	        }
+	    }
+	    
+	    
+	    adapter = new ArrayAdapter<String>(this,
+	            android.R.layout.simple_list_item_1, output);
+	    listeAlbum.setAdapter(adapter);
+	    listeAlbum.setOnCreateContextMenuListener(MenuLis);
+	    cursorResults.close();
+	}
+	ListView.OnCreateContextMenuListener MenuLis=new ListView.OnCreateContextMenuListener(){
+		@Override
+		public void onCreateContextMenu(ContextMenu menu, View v,
+				ContextMenuInfo menuInfo) {
+			// TODO Auto-generated method stub
+			//添加菜单项
+			menu.add(Menu.NONE,Menu_Item1,0,"删除这条记录");
+		}
+ 
+    };
+    public boolean onContextItemSelected(MenuItem item){
+    	//关键代码在这里
+        AdapterView.AdapterContextMenuInfo menuInfo;
+        menuInfo =(AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        //输出position
+        adapter.remove(adapter.getItem(menuInfo.position));
+        return true;
+        //return super.onContextItemSelected(item); 
+ 
+    }
 	/***
 	 * @param exp
 	 *            算数表达式

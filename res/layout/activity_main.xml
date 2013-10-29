@@ -1,0 +1,104 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+	
+    <EditText
+        android:id="@+id/rsText"
+        android:layout_width="match_parent"
+        android:layout_height="81dp"
+        android:background="#eee"
+        android:ems="10"
+        android:textColor="#000" >
+    </EditText>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="270dp"
+        android:rowCount="5"
+        android:columnCount="4"
+        android:orientation="horizontal" >
+
+        <Button
+            android:layout_columnSpan="3"
+            android:layout_gravity="fill"
+            android:text="@string/btnnull" />
+
+        <Button android:text="@string/btndel"
+            android:layout_gravity="fill"
+            android:id="@+id/delete" />
+
+        <Button android:text="@string/btn7"
+            android:layout_gravity="fill"
+            android:id="@+id/num7" />
+
+        <Button android:text="@string/btn8"
+            android:layout_gravity="fill"
+            android:id="@+id/num8" />
+
+        <Button android:text="@string/btn9"
+            android:layout_gravity="fill"
+            android:id="@+id/num9" />
+
+        <Button android:text="@string/btndiv"
+            android:layout_gravity="fill"
+            android:id="@+id/division" />
+
+        <Button android:text="@string/btn4"
+            android:layout_gravity="fill"
+            android:id="@+id/num4" />
+
+        <Button android:text="@string/btn5"
+            android:layout_gravity="fill"
+            android:id="@+id/num5" />
+
+        <Button android:text="@string/btn6"
+            android:layout_gravity="fill"
+            android:id="@+id/num6" />
+
+        <Button android:text="@string/btnmul"
+            android:layout_gravity="fill"
+            android:id="@+id/multiply" />
+
+        <Button android:text="@string/btn1"
+            android:layout_gravity="fill"
+            android:id="@+id/num1" />
+
+        <Button android:text="@string/btn2"
+            android:layout_gravity="fill"
+            android:id="@+id/num2" />
+
+        <Button android:text="@string/btn3"
+            android:layout_gravity="fill"
+            android:id="@+id/num3" />
+
+        <Button android:text="@string/btnmin"
+            android:layout_gravity="fill"
+            android:id="@+id/minus" />
+
+        <Button android:text="@string/btndec"
+            android:layout_gravity="fill"
+            android:id="@+id/dot" />
+        
+        <Button android:text="@string/btn0"
+            android:layout_gravity="fill"
+            android:id="@+id/num0" />
+
+        
+        <Button android:text="@string/btn00"
+            android:layout_gravity="fill"
+            android:id="@+id/equ" />
+
+        <Button android:text="@string/btnadd"
+            android:layout_gravity="fill"
+            android:id="@+id/plus" />
+    </GridLayout>
+	<ListView
+        android:id="@+id/caldblistView"
+        android:layout_width="match_parent"
+        android:layout_height="104dp" >
+
+    </ListView>
+</LinearLayout>
